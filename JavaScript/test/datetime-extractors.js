@@ -6,6 +6,7 @@ var DateTimeOptions = Recognizers.DateTimeOptions;
 
 var LanguagesConfig = [
     'English',
+    'EnglishOthers',
     'Spanish',
     'Chinese',
     'French'
@@ -39,6 +40,11 @@ module.exports = _.zipObject(extractorKeys, extractorObjects);
 function createExtractor(lang, extractor, options) {
     try {
         var extractorModuleName = 'Base' + extractor;
+        var EnglishOthersFlag = false;
+        if (lang === "EnglishOthers") {
+            lang = "English";
+            EnglishOthersFlag = true;
+        }
         var extractorLanguageTypeName = [lang, extractor, Constants.Extractor].join('');
         var ExtractorLanguageType = Recognizers[extractorLanguageTypeName];
         if (ExtractorLanguageType) {
@@ -57,7 +63,9 @@ function createExtractor(lang, extractor, options) {
         if (!ConfigType) {
             throw new Error(`Config Type ${configTypeName} was not found in module ${configModuleName}`);
         }
-
+        if (EnglishOthersFlag) {
+            return new ExtractorType(new ConfigType(EnglishOthersFlag), options);
+        }
         return new ExtractorType(new ConfigType(), options);
     } catch (err) {
         console.error('Error while creating Extractor for DateTime', err.toString());

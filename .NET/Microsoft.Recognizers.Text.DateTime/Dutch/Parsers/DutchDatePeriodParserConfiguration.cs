@@ -200,7 +200,7 @@ namespace Microsoft.Recognizers.Text.DateTime.Dutch
 
         public Regex NowRegex { get; }
 
-        Regex ISimpleDatePeriodParserConfiguration.RelativeRegex => RelativeRegex;
+        Regex IDatePeriodParserConfiguration.RelativeRegex => RelativeRegex;
 
         Regex IDatePeriodParserConfiguration.NextPrefixRegex => NextPrefixRegex;
 

@@ -202,7 +202,7 @@ namespace Microsoft.Recognizers.Text.DateTime.Turkish
 
         public Regex NowRegex { get; }
 
-        Regex ISimpleDatePeriodParserConfiguration.RelativeRegex => RelativeRegex;
+        Regex IDatePeriodParserConfiguration.RelativeRegex => RelativeRegex;
 
         Regex IDatePeriodParserConfiguration.NextPrefixRegex => NextPrefixRegex;
 

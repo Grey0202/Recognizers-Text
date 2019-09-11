@@ -85,7 +85,7 @@ export class BaseDatePeriodExtractor implements IDateTimeExtractor {
         return tokens;
     }
 
-    private getYearFromText(match: Match): number {
+    public getYearFromText(match: Match): number {
         let firstTwoYearNumStr = match.groups('firsttwoyearnum').value;
         if (!StringUtility.isNullOrEmpty(firstTwoYearNumStr)) {
             let er = new ExtractResult();

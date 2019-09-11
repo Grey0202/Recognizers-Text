@@ -12,35 +12,30 @@ function runRecognition() {
     var stdin = process.openStdin();
 
     // Read the text to recognize
-    write('Enter the text to recognize: ');
+    var input = "3 pm or later on monday";
+    if (input) {
+        // Exit
+        if (input.toLowerCase() === 'exit') {
+            return process.exit();
+        } else {
+            // Retrieve all the ModelResult recognized from the user input
+            var results = Recognizers.recognizeDateTime(input, defaultCulture);
 
-    stdin.addListener('data', function (e) {
-        var input = e.toString().trim();
-        if (input) {
-            // Exit
-            if (input.toLowerCase() === 'exit') {
-                return process.exit();
-            } else {
-                // Retrieve all the ModelResult recognized from the user input
-                var results = parseAll(input, defaultCulture);
+            results = [].concat.apply([], results);
 
-                results = [].concat.apply([], results);
-
-                // Write results on console
+            // Write results on console
+            write();
+            write(results.length > 0 ? "I found the following entities (" + results.length + "):" : "I found no entities.");
+            write();
+            results.forEach(function (result) {
+                write(JSON.stringify(result, null, "\t"));
                 write();
-                write(results.length > 0 ? "I found the following entities (" + results.length + "):" : "I found no entities.");
-                write();
-                results.forEach(function (result) {
-                    write(JSON.stringify(result, null, "\t"));
-                    write();
-                });
-            }
-
+            });
         }
+    }
 
         // Read the text to recognize
         write('\nEnter the text to recognize: ');
-    });
 }
 
 // Write on console

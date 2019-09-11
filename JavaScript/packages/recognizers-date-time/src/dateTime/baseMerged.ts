@@ -243,6 +243,7 @@ export interface IMergedParserConfiguration {
     beforeRegex: RegExp
     afterRegex: RegExp
     sinceRegex: RegExp
+    suffixAfter: RegExp
     dateParser: BaseDateParser
     holidayParser: BaseHolidayParser
     timeParser: BaseTimeParser
@@ -274,6 +275,7 @@ export class BaseMergedParser implements IDateTimeParser {
         let pr: DateTimeParseResult = null;
 
         // push, save teh MOD string
+        let hasInclusiveModifier = false;
         let hasBefore = false;
         let hasAfter = false;
         let hasSince = false;
@@ -305,6 +307,38 @@ export class BaseMergedParser implements IDateTimeParser {
                 modStr = sinceMatch.value;
             }
         }         
+        let beforeMatch = RegExpUtility.getMatches(this.config.beforeRegex, er.text).shift();
+        let afterMatch = RegExpUtility.getMatches(this.config.afterRegex, er.text).shift();
+        let sinceMatch = RegExpUtility.getMatches(this.config.sinceRegex, er.text).shift();
+        if (beforeMatch && beforeMatch.index === 0) {
+            hasBefore = true;
+            er.start += beforeMatch.length;
+            er.length -= beforeMatch.length;
+            er.text = er.text.substring(beforeMatch.length);
+            modStr = beforeMatch.value;
+
+            let groups = beforeMatch.groups;
+
+        }
+        else if (afterMatch && afterMatch.index === 0) {
+            hasAfter = true;
+            er.start += afterMatch.length;
+            er.length -= afterMatch.length;
+            er.text = er.text.substring(afterMatch.length);
+            modStr = afterMatch.value;
+
+            let groups = afterMatch.groups('include');
+            if (groups) {
+                hasInclusiveModifier = true;
+            }
+        }
+        else if (sinceMatch && sinceMatch.index === 0) {
+            hasSince = true;
+            er.start += sinceMatch.length;
+            er.length -= sinceMatch.length;
+            er.text = er.text.substring(sinceMatch.length);
+            modStr = sinceMatch.value;
+        }
 
         if (er.type === Constants.SYS_DATETIME_DATE) {
             if (er.metaData !== null && er.metaData !== undefined && er.metaData.IsHoliday) {
@@ -345,7 +379,9 @@ export class BaseMergedParser implements IDateTimeParser {
             pr.start -= modStr.length;
             pr.text = modStr + pr.text;
             let val = pr.value;
-            val.mod = TimeTypeConstants.beforeMod;
+
+            val.Mod = this.CombineMod(val.Mod, !hasInclusiveModifier ? Constants.BEFORE_MOD : Constants.UNTIL_MOD);
+
             pr.value = val;
         }
 
@@ -354,7 +390,14 @@ export class BaseMergedParser implements IDateTimeParser {
             pr.start -= modStr.length;
             pr.text = modStr + pr.text;
             let val = pr.value;
-            val.mod = TimeTypeConstants.afterMod;
+
+            if (!hasInclusiveModifier) {
+                val.Mod = this.CombineMod(val.Mod, Constants.AFTER_MOD);
+            }
+            else {
+                val.Mod = this.CombineMod(val.Mod, Constants.SINCE_MOD);
+            }
+
             pr.value = val;
         }
 
@@ -363,8 +406,16 @@ export class BaseMergedParser implements IDateTimeParser {
             pr.start -= modStr.length;
             pr.text = modStr + pr.text;
             let val = pr.value;
-            val.mod = TimeTypeConstants.sinceMod;
+            val.mod = this.CombineMod(val.Mod, Constants.SINCE_MOD);
             pr.value = val;
+        }
+
+        // For cases like "3 pm or later on monday"
+        if (pr.value && RegExpUtility.getFirstMatchIndex(this.config.suffixAfter, pr.text).index !== 0 && pr.type === Constants.SYS_DATETIME_DATETIME) {
+            let val = pr.value;
+            val.mod = this.CombineMod(val.mod, Constants.SINCE_MOD);
+            pr.value = val;
+            hasSince = true;
         }
 
         if ((this.options & DateTimeOptions.SplitDateAndTime) === DateTimeOptions.SplitDateAndTime
@@ -687,6 +738,16 @@ export class BaseMergedParser implements IDateTimeParser {
 
         result[TimeTypeConstants.START] = start;
         result[TimeTypeConstants.END] = end;
+    }
+
+    private CombineMod(originalMod : string, newMod : string): string{
+        let combinedMod = newMod;
+
+        if (originalMod) {
+            combinedMod = newMod.concat("-", originalMod);
+        }
+
+        return combinedMod;
     }
 
     protected getValues(obj: any): any[] {

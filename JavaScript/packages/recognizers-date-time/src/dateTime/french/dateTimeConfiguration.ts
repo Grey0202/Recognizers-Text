@@ -16,7 +16,10 @@ export class FrenchDateTimeExtractorConfiguration implements IDateTimeExtractorC
     readonly datePointExtractor: BaseDateExtractor;
     readonly timePointExtractor: BaseTimeExtractor;
     readonly durationExtractor: BaseDurationExtractor;
+    readonly dateNumberConnectorRegex: RegExp;
     readonly suffixRegex: RegExp;
+    readonly suffixAfterRegex: RegExp;
+    readonly numberAsTimeRegex: RegExp;
     readonly nowRegex: RegExp;
     readonly timeOfTodayAfterRegex: RegExp;
     readonly timeOfDayRegex: RegExp;
@@ -28,6 +31,8 @@ export class FrenchDateTimeExtractorConfiguration implements IDateTimeExtractorC
     readonly specificEndOfRegex: RegExp;
     readonly unspecificEndOfRegex: RegExp;
     readonly unitRegex: RegExp;
+    readonly yearRegex: RegExp;
+    readonly yearSuffix: RegExp;
     readonly utilityConfiguration: IDateTimeUtilityConfiguration;
     readonly prepositionRegex: RegExp;
     readonly connectorRegex: RegExp;

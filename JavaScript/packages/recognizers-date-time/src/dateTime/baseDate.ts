@@ -8,6 +8,10 @@ import { BaseDurationExtractor, BaseDurationParser } from "./baseDuration";
 import { IDateTimeParser, DateTimeParseResult } from "./parsers";
 import toNumber = require("lodash.tonumber");
 
+export interface IDateExtractor extends IDateTimeExtractor {
+    GetYearFromText(match: Match): number
+}
+
 export interface IDateExtractorConfiguration {
     dateRegexList: RegExp[],
     implicitDateList: RegExp[],
@@ -27,7 +31,7 @@ export interface IDateExtractorConfiguration {
     utilityConfiguration: IDateTimeUtilityConfiguration,
 }
 
-export class BaseDateExtractor implements IDateTimeExtractor {
+export class BaseDateExtractor implements IDateExtractor {
     protected readonly extractorName = Constants.SYS_DATETIME_DATE;
     protected readonly config: IDateExtractorConfiguration;
 
@@ -186,6 +190,42 @@ export class BaseDateExtractor implements IDateTimeExtractor {
             ret = AgoLaterUtil.extractorDurationWithBeforeAndAfter(source, er, ret, this.config.utilityConfiguration);
         });
         return ret;
+    }
+
+    public GetYearFromText(match: Match): number {
+        let firstTwoYearNumStr = match.groups('firsttwoyearnum').value;
+        if (!StringUtility.isNullOrEmpty(firstTwoYearNumStr)) {
+            let er = new ExtractResult();
+            er.text = firstTwoYearNumStr;
+            er.start = match.groups('firsttwoyearnum').index;
+            er.length = match.groups('firsttwoyearnum').length;
+
+            let firstTwoYearNum = Number.parseInt(this.config.numberParser.parse(er).value);
+
+            let lastTwoYearNum = 0;
+            let lastTwoYearNumStr = match.groups('lasttwoyearnum').value;
+            if (!StringUtility.isNullOrEmpty(lastTwoYearNumStr)) {
+                er.text = lastTwoYearNumStr;
+                er.start = match.groups('lasttwoyearnum').index;
+                er.length = match.groups('lasttwoyearnum').length;
+
+                lastTwoYearNum = Number.parseInt(this.config.numberParser.parse(er).value);
+            }
+
+            if (firstTwoYearNum < 100 && lastTwoYearNum === 0 || firstTwoYearNum < 100 && firstTwoYearNum % 10 === 0 && lastTwoYearNumStr.trim().split(' ').length === 1) {
+                return -1;
+            }
+
+            if (firstTwoYearNum >= 100) {
+                return (firstTwoYearNum + lastTwoYearNum);
+            }
+            else {
+                return (firstTwoYearNum * 100 + lastTwoYearNum);
+            }
+        }
+        else {
+            return -1;
+        }
     }
 }
 

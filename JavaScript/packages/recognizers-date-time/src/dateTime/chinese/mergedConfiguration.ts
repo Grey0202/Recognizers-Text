@@ -158,6 +158,7 @@ class ChineseMergedParserConfiguration implements IMergedParserConfiguration {
     readonly beforeRegex: RegExp;
     readonly afterRegex: RegExp;
     readonly sinceRegex: RegExp;
+    readonly suffixAfter: RegExp;
     readonly dateParser: BaseDateParser;
     readonly holidayParser: BaseHolidayParser;
     readonly timeParser: BaseTimeParser;

@@ -74,6 +74,7 @@ export class SpanishMergedParserConfiguration extends SpanishCommonDateTimeParse
     readonly beforeRegex: RegExp;
     readonly afterRegex: RegExp;
     readonly sinceRegex: RegExp;
+    readonly suffixAfter: RegExp;
     readonly dateParser: BaseDateParser;
     readonly holidayParser: BaseHolidayParser;
     readonly timeParser: BaseTimeParser;
@@ -90,6 +91,7 @@ export class SpanishMergedParserConfiguration extends SpanishCommonDateTimeParse
         this.beforeRegex = RegExpUtility.getSafeRegExp(SpanishDateTime.BeforeRegex);
         this.afterRegex = RegExpUtility.getSafeRegExp(SpanishDateTime.AfterRegex);
         this.sinceRegex = RegExpUtility.getSafeRegExp(SpanishDateTime.SinceRegex);
+        this.suffixAfter = RegExpUtility.getSafeRegExp(SpanishDateTime.SuffixAfterRegex);
 
         this.datePeriodParser = new BaseDatePeriodParser(new SpanishDatePeriodParserConfiguration(this));
         this.timePeriodParser = new BaseTimePeriodParser(new SpanishTimePeriodParserConfiguration(this));

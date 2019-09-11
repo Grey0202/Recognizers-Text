@@ -25,17 +25,14 @@ class DateTimeModel(Model):
         query = QueryProcessor.preprocess(query)
         parser_dates = []
 
-        try:
-            extract_results = self.extractor.extract(query, reference)
+        extract_results = self.extractor.extract(query, reference)
 
-            for result in extract_results:
-                parse_result = self.parser.parse(result, reference)
-                if isinstance(parse_result.value, list):
-                    parser_dates += parse_result.value
-                else:
-                    parser_dates.append(parse_result)
-        except Exception:
-            pass
+        for result in extract_results:
+            parse_result = self.parser.parse(result, reference)
+            if isinstance(parse_result.value, list):
+                parser_dates += parse_result.value
+            else:
+                parser_dates.append(parse_result)
 
         return [self.__to_model_result(x) for x in parser_dates]
 

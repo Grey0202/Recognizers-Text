@@ -1,7 +1,7 @@
 import { RegExpUtility } from "@microsoft/recognizers-text";
 import { IDateTimeExtractorConfiguration, IDateTimeParserConfiguration, IDateTimeExtractor } from "../baseDateTime";
 import { BaseNumberExtractor, BaseNumberParser } from "@microsoft/recognizers-text-number";
-import { BaseDateExtractor, BaseDateParser } from "../baseDate";
+import { BaseDateExtractor, BaseDateParser, IDateExtractor } from "../baseDate";
 import { BaseTimeExtractor, BaseTimeParser } from "../baseTime";
 import { BaseDurationExtractor, BaseDurationParser } from "../baseDuration";
 import { IDateTimeUtilityConfiguration } from "../utilities";
@@ -13,10 +13,13 @@ import { ICommonDateTimeParserConfiguration } from "../parsers";
 import { SpanishTimeExtractorConfiguration } from "./timeConfiguration";
 
 export class SpanishDateTimeExtractorConfiguration implements IDateTimeExtractorConfiguration {
-    readonly datePointExtractor: IDateTimeExtractor;
+    readonly datePointExtractor: IDateExtractor;
     readonly timePointExtractor: IDateTimeExtractor;
     readonly durationExtractor: IDateTimeExtractor;
+    readonly dateNumberConnectorRegex: RegExp;
     readonly suffixRegex: RegExp;
+    readonly suffixAfterRegex: RegExp;
+    readonly numberAsTimeRegex: RegExp;
     readonly nowRegex: RegExp;
     readonly timeOfTodayAfterRegex: RegExp;
     readonly timeOfDayRegex: RegExp;
@@ -28,6 +31,8 @@ export class SpanishDateTimeExtractorConfiguration implements IDateTimeExtractor
     readonly specificEndOfRegex: RegExp;
     readonly unspecificEndOfRegex: RegExp;
     readonly unitRegex: RegExp;
+    readonly yearRegex: RegExp;
+    readonly yearSuffix: RegExp;
     readonly utilityConfiguration: IDateTimeUtilityConfiguration;
     readonly prepositionRegex: RegExp;
     readonly connectorRegex: RegExp;

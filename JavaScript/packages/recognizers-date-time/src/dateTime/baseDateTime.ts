@@ -1,7 +1,7 @@
 import { IExtractor, ExtractResult, RegExpUtility, StringUtility } from "@microsoft/recognizers-text";
 import { Constants, TimeTypeConstants } from "./constants";
-import { BaseNumberExtractor, BaseNumberParser } from "@microsoft/recognizers-text-number";
-import { BaseDateExtractor, BaseDateParser } from "./baseDate";
+import { BaseNumberExtractor, BaseNumberParser, Constants as NumberConstants } from "@microsoft/recognizers-text-number";
+import { BaseDateExtractor, BaseDateParser, IDateExtractor } from "./baseDate";
 import { BaseTimeExtractor, BaseTimeParser } from "./baseTime";
 import { BaseDurationExtractor, BaseDurationParser } from "./baseDuration";
 import { IDateTimeParser, DateTimeParseResult } from "./parsers";
@@ -12,10 +12,12 @@ export interface IDateTimeExtractor {
 }
 
 export interface IDateTimeExtractorConfiguration {
-    datePointExtractor: IDateTimeExtractor
+    datePointExtractor: IDateExtractor
     timePointExtractor: IDateTimeExtractor
     durationExtractor: IDateTimeExtractor
+    dateNumberConnectorRegex: RegExp
     suffixRegex: RegExp
+    suffixAfterRegex: RegExp
     nowRegex: RegExp
     timeOfTodayAfterRegex: RegExp
     simpleTimeOfTodayAfterRegex: RegExp
@@ -25,6 +27,9 @@ export interface IDateTimeExtractorConfiguration {
     specificEndOfRegex: RegExp
     unspecificEndOfRegex: RegExp
     unitRegex: RegExp
+    numberAsTimeRegex: RegExp
+    yearRegex: RegExp
+    yearSuffix: RegExp
     utilityConfiguration: IDateTimeUtilityConfiguration
     isConnectorToken(source: string): boolean
 }
@@ -76,17 +81,44 @@ export class BaseDateTimeExtractor implements IDateTimeExtractor {
                 break;
             }
             if ((ers[i].type === Constants.SYS_DATETIME_DATE && ers[j].type === Constants.SYS_DATETIME_TIME) ||
-                (ers[i].type === Constants.SYS_DATETIME_TIME && ers[j].type === Constants.SYS_DATETIME_DATE)) {
+                (ers[i].type === Constants.SYS_DATETIME_TIME && ers[j].type === Constants.SYS_DATETIME_DATE) ||
+                (ers[i].type === Constants.SYS_DATETIME_DATE && ers[j].type === NumberConstants.SYS_NUM_INTEGER)) {
                 let middleBegin = ers[i].start + ers[i].length;
                 let middleEnd = ers[j].start;
                 if (middleBegin > middleEnd) {
                     i = j + 1;
                     continue;
                 }
+
                 let middleStr = source.substr(middleBegin, middleEnd - middleBegin).trim().toLowerCase();
-                if (this.config.isConnectorToken(middleStr)) {
+                let valid = false;
+
+                if (ers[j].type === NumberConstants.SYS_NUM_INTEGER) {
+                    let match =  RegExpUtility.getMatches(this.config.dateNumberConnectorRegex, middleStr);
+                    if (!middleStr || match) {
+                        valid = true;
+                    }
+                }
+                else {
+                    let match = RegExpUtility.getMatches(this.config.suffixAfterRegex, middleStr);
+                    if (match) {
+                        middleStr = middleStr.substring(match[0].index + match[0].length, middleStr.length - match[0].length);
+                    }
+
+                    if (!(match && middleStr.length === 0)) {
+                        if (this.config.isConnectorToken(middleStr)) {
+                            valid = true;
+                        }
+                    }
+                }
+
+                if (valid) {
                     let begin = ers[i].start;
                     let end = ers[j].start + ers[j].length;
+
+                    let extendIndex = { startIndex: begin, endIndex: end };
+                    this.extendWithDateTimeAndYear(extendIndex, source, refDate);
+
                     tokens.push(new Token(begin, end));
                     i = j + 1;
                     continue;
@@ -198,6 +230,24 @@ export class BaseDateTimeExtractor implements IDateTimeExtractor {
             }
         });
         return tokens;
+    }
+
+    
+    // Handle case like "Wed Oct 26 15:50:06 2016" which year and month separated by time.
+    private extendWithDateTimeAndYear(index: { startIndex: number, endIndex: number }, text: string, reference: Date) {
+        // Check whether there's a year behind.
+        var suffix = text.substring(index.endIndex);
+        var matchYear = RegExpUtility.getMatches(this.config.yearSuffix, suffix);
+        if (matchYear && matchYear[0].index == 0)
+        {
+            var checkYear = this.config.datePointExtractor.GetYearFromText(RegExpUtility.getMatches(this.config.yearRegex, text)[0]);
+            var year = this.config.datePointExtractor.GetYearFromText(matchYear[0]);
+            if (year >= Constants.MinYearNum && year <= Constants.MaxYearNum && checkYear == year)
+            {
+                index.endIndex += matchYear.length;
+            }
+        }
+        
     }
 }
 

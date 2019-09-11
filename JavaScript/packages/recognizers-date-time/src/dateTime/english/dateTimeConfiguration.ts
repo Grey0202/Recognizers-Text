@@ -1,5 +1,5 @@
 import { IDateTimeExtractor, IDateTimeExtractorConfiguration, IDateTimeParserConfiguration } from "../baseDateTime";
-import { BaseDateExtractor, BaseDateParser } from "../baseDate";
+import { BaseDateExtractor, BaseDateParser, IDateExtractor } from "../baseDate";
 import { BaseTimeExtractor, BaseTimeParser } from "../baseTime";
 import { RegExpUtility, StringUtility } from "@microsoft/recognizers-text";
 import { BaseNumberExtractor, BaseNumberParser } from "@microsoft/recognizers-text-number";
@@ -13,10 +13,13 @@ import { EnglishDateExtractorConfiguration } from "./dateConfiguration";
 import { EnglishTimeExtractorConfiguration } from "./timeConfiguration";
 
 export class EnglishDateTimeExtractorConfiguration implements IDateTimeExtractorConfiguration {
-    readonly datePointExtractor: IDateTimeExtractor
+    readonly datePointExtractor: IDateExtractor
     readonly timePointExtractor: IDateTimeExtractor
     readonly durationExtractor: IDateTimeExtractor
+    readonly dateNumberConnectorRegex: RegExp;
+    readonly suffixAfterRegex: RegExp;
     readonly suffixRegex: RegExp
+    readonly numberAsTimeRegex: RegExp;
     readonly nowRegex: RegExp
     readonly timeOfTodayAfterRegex: RegExp
     readonly simpleTimeOfTodayAfterRegex: RegExp
@@ -28,6 +31,8 @@ export class EnglishDateTimeExtractorConfiguration implements IDateTimeExtractor
     readonly unitRegex: RegExp
     readonly prepositionRegex: RegExp
     readonly connectorRegex: RegExp
+    readonly yearRegex: RegExp;
+    readonly yearSuffix: RegExp;
     readonly utilityConfiguration: IDateTimeUtilityConfiguration
 
     constructor(dmyDateFormat: boolean) {

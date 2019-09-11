@@ -74,6 +74,7 @@ export class EnglishMergedParserConfiguration implements IMergedParserConfigurat
     readonly beforeRegex: RegExp
     readonly afterRegex: RegExp
     readonly sinceRegex: RegExp
+    readonly suffixAfter: RegExp
     readonly dateParser: BaseDateParser
     readonly holidayParser: BaseHolidayParser
     readonly timeParser: BaseTimeParser
@@ -88,6 +89,7 @@ export class EnglishMergedParserConfiguration implements IMergedParserConfigurat
         this.beforeRegex = RegExpUtility.getSafeRegExp(EnglishDateTime.BeforeRegex);
         this.afterRegex = RegExpUtility.getSafeRegExp(EnglishDateTime.AfterRegex);
         this.sinceRegex = RegExpUtility.getSafeRegExp(EnglishDateTime.SinceRegex);
+        this.suffixAfter = RegExpUtility.getSafeRegExp(EnglishDateTime.SuffixAfterRegex);
         this.holidayParser = new BaseHolidayParser(new EnglishHolidayParserConfiguration());
         this.dateParser = config.dateParser;
         this.timeParser = config.timeParser;

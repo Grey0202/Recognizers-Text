@@ -73,6 +73,7 @@ export class FrenchMergedParserConfiguration extends FrenchCommonDateTimeParserC
     readonly beforeRegex: RegExp;
     readonly afterRegex: RegExp;
     readonly sinceRegex: RegExp;
+    readonly suffixAfter: RegExp;
     readonly dateParser: BaseDateParser;
     readonly holidayParser: BaseHolidayParser;
     readonly timeParser: BaseTimeParser;
@@ -89,6 +90,7 @@ export class FrenchMergedParserConfiguration extends FrenchCommonDateTimeParserC
         this.beforeRegex = RegExpUtility.getSafeRegExp(FrenchDateTime.BeforeRegex);
         this.afterRegex = RegExpUtility.getSafeRegExp(FrenchDateTime.AfterRegex);
         this.sinceRegex = RegExpUtility.getSafeRegExp(FrenchDateTime.SinceRegex);
+        this.suffixAfter = RegExpUtility.getSafeRegExp(FrenchDateTime.SuffixAfterRegex);
 
         this.datePeriodParser = new BaseDatePeriodParser(new FrenchDatePeriodParserConfiguration(this));
         this.timePeriodParser = new BaseTimePeriodParser(new FrenchTimePeriodParserConfiguration(this));

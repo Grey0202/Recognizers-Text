@@ -37,7 +37,7 @@ namespace SimpleConsole
                 if (input?.Length > 0)
                 {
                     // Retrieve all the parsers and call 'Parse' to recognize all the values from the user input
-                    var results = ParseAll(input, DefaultCulture);
+                    var results = DateTimeRecognizer.RecognizeDateTime(input, DefaultCulture, DateTimeOptions.EnablePreview);
 
                     // Write output
                     Console.WriteLine(results.Any() ? $"I found the following entities ({results.Count():d}):" : "I found no entities.");
